@@ -1,0 +1,12 @@
+[programs.devnet]
+honey_pot = "GsDJ4KEj15GaC8ZyEDwBjMEfLC3CFCmJ2MsYeKoFfuM3"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "devnet"
+wallet = "/home/fury/Rust/deploy-keypair.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

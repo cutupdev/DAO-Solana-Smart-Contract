@@ -29,7 +29,7 @@ const payer = anchor.getProvider().wallet;
 console.log(payer.publicKey.toBase58());
 
 const idl = JSON.parse(
-    fs.readFileSync(__dirname + "/.json", "utf8")
+    fs.readFileSync(__dirname + "/honey_pot.json", "utf8")
 );
 
 let rewardVault: PublicKey = null;
@@ -57,10 +57,10 @@ const main = async () => {
 
     await initProject(payer.publicKey);
 
-    await buyTicket(payer.publicKey, 5);
-    await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
-    const dailyPot: DailyPot = await getDailyPot();
-    console.log(dailyPot);
+    // await buyTicket(payer.publicKey, 5);
+    // await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
+    // const dailyPot: DailyPot = await getDailyPot();
+    // console.log(dailyPot);
 
     // await revealWinner(payer.publicKey);
     // console.log(dailyPot);
@@ -387,6 +387,129 @@ export const revealMonthlyWinner = async (
     await solConnection.confirmTransaction(tx, "confirmed");
 
     console.log("Reveal Monthly Winner Succeed");
+}
+
+/**
+ * @dev The claim funtion that can claim the winner Prize from the daily_pot
+ * @param userAddress The caller address to claim reward from the rewardVault
+ */
+export const claim = async (
+    userAddress: PublicKey,
+) => {
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+    const dailyPot: DailyPot = await getDailyPot();
+    const claimPrize = dailyPot.claimPrize;
+
+    console.log(claimPrize.toNumber());
+
+    let dailyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "daily-pot",
+        program.programId,
+    );
+    const tx = await program.rpc.claim(
+        vaultBump, {
+        accounts: {
+            owner: userAddress,
+            dailyPot: dailyPotKey,
+            rewardVault,
+            treasuryWallet: new PublicKey(TREASURY_WALLET),
+            systemProgram: SystemProgram.programId,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log(`The Winner ${userAddress.toBase58()} Claimed ${claimPrize.toNumber()} Successfully`);
+
+}
+
+/**
+ * @dev The claim funtion that can claim the winner Prize from the weekly_pot
+ * @param userAddress The caller address to claim reward from the rewardVault
+ */
+export const claimWeekly = async (
+    userAddress: PublicKey,
+) => {
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+    const weeklyPot: WeeklyPot = await getWeeklyPot();
+    const claimPrize = weeklyPot.claimPrize;
+
+    console.log(claimPrize);
+
+    let weeklyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "weekly-pot",
+        program.programId,
+    );
+    const tx = await program.rpc.claimWeekly(
+        vaultBump, {
+        accounts: {
+            owner: userAddress,
+            weeklyPot: weeklyPotKey,
+            rewardVault,
+            treasuryWallet: new PublicKey(TREASURY_WALLET),
+            systemProgram: SystemProgram.programId,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log(`The Winner ${userAddress.toBase58()} Claimed ${claimPrize.toNumber()} Successfully`);
+
+}
+
+/**
+ * @dev The claim funtion that can claim the winner Prize from the monthy_pot
+ * @param userAddress The caller address to claim reward from the rewardVault
+ */
+export const claimMonthly = async (
+    userAddress: PublicKey,
+) => {
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+    const monthlyPot: MonthlyPot = await getMonthlyPot();
+    const claimPrize = monthlyPot.claimPrize;
+
+    console.log(claimPrize);
+
+    let monthlyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "monthly-pot",
+        program.programId,
+    );
+    const tx = await program.rpc.claimMonthly(
+        vaultBump, {
+        accounts: {
+            owner: userAddress,
+            monthlyPot: monthlyPotKey,
+            rewardVault,
+            treasuryWallet: new PublicKey(TREASURY_WALLET),
+            systemProgram: SystemProgram.programId,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log(`The Winner ${userAddress.toBase58()} Claimed ${claimPrize.toNumber()} Successfully`);
+
 }
 
 /**

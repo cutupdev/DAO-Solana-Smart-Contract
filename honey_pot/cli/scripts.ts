@@ -13,6 +13,7 @@ import { Token, TOKEN_PROGRAM_ID, AccountLayout, MintLayout, ASSOCIATED_TOKEN_PR
 
 import fs from 'fs';
 import { GlobalPool, DailyPot, WeeklyPot, MonthlyPot } from './types';
+import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
 
 const DAY_POOL_SIZE = 424120;
 const WEEK_POOL_SIZE = 40000;
@@ -48,8 +49,31 @@ const main = async () => {
     );
     console.log('GlobalAuthority: ', globalAuthority.toBase58());
 
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    console.log('RewardVault: ', rewardVault.toBase58());
+
+    await initProject(payer.publicKey);
+
+    await buyTicket(payer.publicKey, 5);
+    await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
+    const dailyPot: DailyPot = await getDailyPot();
+    console.log(dailyPot);
+
+    // await revealWinner(payer.publicKey);
+    // console.log(dailyPot);
+
+    // await claim(payer.publicKey);
+
 }
 
+/**
+ * @dev Before use this program, the accounts have to be initialized
+ * @param userAddress : The caller who want to init the project
+ * @returns 
+ */
 export const initProject = async (
     userAddress: PublicKey,
 ) => {
@@ -82,6 +106,8 @@ export const initProject = async (
     );
 
     console.log(DAY_POOL_SIZE);
+
+    // Create the daily_pot with seed
     let ix = SystemProgram.createAccountWithSeed({
         fromPubkey: userAddress,
         basePubkey: userAddress,
@@ -91,7 +117,8 @@ export const initProject = async (
         space: DAY_POOL_SIZE,
         programId: program.programId,
     });
-    console.log(ix);
+
+    // Create the weekly_pot with seed
     let ix1 = SystemProgram.createAccountWithSeed({
         fromPubkey: userAddress,
         basePubkey: userAddress,
@@ -101,6 +128,8 @@ export const initProject = async (
         space: WEEK_POOL_SIZE,
         programId: program.programId,
     });
+
+    // Create the monthly_pot with seed
     let ix2 = SystemProgram.createAccountWithSeed({
         fromPubkey: userAddress,
         basePubkey: userAddress,
@@ -111,7 +140,7 @@ export const initProject = async (
         programId: program.programId,
     });
 
-
+    // Call the initialize function of the program
     const tx = await program.rpc.initialize(
         bump, vaultBump, {
         accounts: {
@@ -135,13 +164,139 @@ export const initProject = async (
     return false;
 }
 
+/**
+ * @dev But daily tickets function
+ * @param userAddress The caller of this function- the player of the game
+ * @param amount The amount of tickets that the caller bought
+ */
 export const buyTicket = async (
     userAddress: PublicKey,
     amount: number
 ) => {
-  
+    const [globalAuthority, bump] = await PublicKey.findProgramAddress(
+        [Buffer.from(GLOBAL_AUTHORITY_SEED)],
+        program.programId
+    );
+
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let dailyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "daily-pot",
+        program.programId,
+    );
+
+    const tx = await program.rpc.buyTicket(
+        bump, vaultBump, new anchor.BN(amount), {
+        accounts: {
+            owner: userAddress,
+            dailyPot: dailyPotKey,
+            rewardVault: rewardVault,
+            treasuryWallet: new PublicKey(TREASURY_WALLET),
+            systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+    console.log("The Number of Tickets You bought:", amount);
 
 }
+
+/**
+ * @dev But Weekly tickets function
+ * @param userAddress The caller of this function- the player of the game
+ * @param amount The amount of tickets that the caller bought
+ */
+export const buyWeeklyTicket = async (
+    userAddress: PublicKey,
+    amount: number
+) => {
+    const [globalAuthority, bump] = await PublicKey.findProgramAddress(
+        [Buffer.from(GLOBAL_AUTHORITY_SEED)],
+        program.programId
+    );
+
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let weeklyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "weekly-pot",
+        program.programId,
+    );
+
+    const tx = await program.rpc.buyWeeklyTicket(
+        bump, vaultBump, new anchor.BN(amount), {
+        accounts: {
+            owner: userAddress,
+            weeklyPot: weeklyPotKey,
+            rewardVault: rewardVault,
+            treasuryWallet: new PublicKey(TREASURY_WALLET),
+            systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+    console.log("The Number of Tickets You bought:", amount);
+}
+
+/**
+ * @dev But Monthly tickets function
+ * @param userAddress The caller of this function- the player of the game
+ * @param amount The amount of tickets that the caller bought
+ */
+export const buyMonthlyTicket = async (
+    userAddress: PublicKey,
+    amount: number
+) => {
+    const [globalAuthority, bump] = await PublicKey.findProgramAddress(
+        [Buffer.from(GLOBAL_AUTHORITY_SEED)],
+        program.programId
+    );
+
+    const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
+        [Buffer.from(REWARD_VAULT_SEED)],
+        program.programId
+    );
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let monthlyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "monthly-pot",
+        program.programId,
+    );
+
+    const tx = await program.rpc.buyMonthlyTicket(
+        bump, vaultBump, new anchor.BN(amount), {
+        accounts: {
+            owner: userAddress,
+            monthlyPot: monthlyPotKey,
+            rewardVault: rewardVault,
+            treasuryWallet: new PublicKey(TREASURY_WALLET),
+            systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+    console.log("The Number of Tickets You bought:", amount);
+}
+
 
 export const getGlobalState = async (
 ): Promise<GlobalPool | null> => {
@@ -156,6 +311,11 @@ export const getGlobalState = async (
         return null;
     }
 }
+
+/**
+ * @dev get DailyPot data- count, startTime, prize, entrants[], endTime, claimPrize, winner
+ * @returns DailyPot state
+ */
 export const getDailyPot = async (
 ): Promise<DailyPot | null> => {
     const globalPool: GlobalPool = await getGlobalState();

@@ -11,33 +11,36 @@ pub struct GlobalPool {
 
 #[account(zero_copy)]
 pub struct DailyPot {
-    pub count: u64,
-    pub start_time: i64,
-    pub prize: u64,
-    pub entrants: [Pubkey; MAX_DAILY_TICKETS],
-    pub end_time: i64,
-    pub claim_prize: u64,
-    pub winner: Pubkey,
+    // 2_240_080
+    pub count: u64,                            //8
+    pub start_time: i64,                       //8
+    pub prize: u64,                            //8
+    pub entrants: [Pubkey; MAX_DAILY_TICKETS], //32*70000
+    pub end_time: i64,                         //8
+    pub claim_prize: u64,                      //8
+    pub winner: Pubkey,                        //32
 }
 #[account(zero_copy)]
 pub struct WeeklyPot {
-    pub count: u64,
-    pub start_time: i64,
-    pub prize: u64,
-    pub entrants: [Pubkey; MAX_WEEKLY_TICKETS],
-    pub end_time: i64,
-    pub claim_prize: u64,
-    pub winner: Pubkey,
+    // 22_400_080
+    pub count: u64,                             //8
+    pub start_time: i64,                        //8
+    pub prize: u64,                             //8
+    pub entrants: [Pubkey; MAX_WEEKLY_TICKETS], //32*700000
+    pub end_time: i64,                          //8
+    pub claim_prize: u64,                       //8
+    pub winner: Pubkey,                         //32
 }
 #[account(zero_copy)]
 pub struct MonthlyPot {
-    pub count: u64,
-    pub start_time: i64,
-    pub prize: u64,
-    pub entrants: [Pubkey; MAX_MONTHLY_TICKETS],
-    pub end_time: i64,
-    pub claim_prize: u64,
-    pub winner: Pubkey,
+    // 224_000_080
+    pub count: u64,                              //8
+    pub start_time: i64,                         //8
+    pub prize: u64,                              //8
+    pub entrants: [Pubkey; MAX_MONTHLY_TICKETS], //32*7000000
+    pub end_time: i64,                           //8
+    pub claim_prize: u64,                        //8
+    pub winner: Pubkey,                          //32
 }
 
 impl Default for DailyPot {

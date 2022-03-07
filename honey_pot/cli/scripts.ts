@@ -297,7 +297,102 @@ export const buyMonthlyTicket = async (
     console.log("The Number of Tickets You bought:", amount);
 }
 
+/**
+ * @dev The function which can reveal the winner of the daily_pot
+ * @param userAddress The caller address
+ */
+export const revealWinner = async (
+    userAddress: PublicKey,
+) => {
 
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let dailyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "daily-pot",
+        program.programId,
+    );
+    const tx = await program.rpc.revealWinner(
+        {
+            accounts: {
+                owner: userAddress,
+                dailyPot: dailyPotKey,
+            },
+            instructions: [],
+            signers: [],
+        });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log("Reveal Daily Winner Succeed");
+
+}
+
+/**
+ * @dev The function which can reveal the winner of the weekly_pot
+ * @param userAddress The caller address
+ */
+export const revealWeeklyWinner = async (
+    userAddress: PublicKey,
+) => {
+
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let weeklyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "weekly-pot",
+        program.programId,
+    );
+    const tx = await program.rpc.revealWeeklyWinner(
+        {
+            accounts: {
+                owner: userAddress,
+                weeklyPot: weeklyPotKey,
+            },
+            instructions: [],
+            signers: [],
+        });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log("Reveal Weekly Winner Succeed");
+}
+
+/**
+ * @dev The function which can reveal the winner of the monthly_pot
+ * @param userAddress The caller address
+ */
+
+export const revealMonthlyWinner = async (
+    userAddress: PublicKey,
+) => {
+
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let monthlyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "monthly-pot",
+        program.programId,
+    );
+    const tx = await program.rpc.revealMonthlyWinner(
+        {
+            accounts: {
+                owner: userAddress,
+                monthlyPot: monthlyPotKey,
+            },
+            instructions: [],
+            signers: [],
+        });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log("Reveal Monthly Winner Succeed");
+}
+
+/**
+ * @dev get GlobalPool data- admin address of the globalpool
+ * @returns GlobalPool state
+ */
 export const getGlobalState = async (
 ): Promise<GlobalPool | null> => {
     const [globalAuthority, bump] = await PublicKey.findProgramAddress(
@@ -329,6 +424,50 @@ export const getDailyPot = async (
     try {
         let dailyPot = await program.account.dailyPot.fetch(dailyPotKey);
         return dailyPot as DailyPot;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * @dev get WeeklyPot data- count, startTime, prize, entrants[], endTime, claimPrize, winner
+ * @returns WeeklyPot state
+ */
+export const getWeeklyPot = async (
+): Promise<WeeklyPot | null> => {
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let weeklyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "weekly-pot",
+        program.programId,
+    );
+    try {
+        let weeklyPot = await program.account.weeklyPot.fetch(weeklyPotKey);
+        return weeklyPot as WeeklyPot;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * @dev get MonthyPot data- count, startTime, prize, entrants[], endTime, claimPrize, winner
+ * @returns MonthlyPot state
+ */
+export const getMonthlyPot = async (
+): Promise<MonthlyPot | null> => {
+    const globalPool: GlobalPool = await getGlobalState();
+    const adminAddress = globalPool.admin;
+
+    let monthlyPotKey = await PublicKey.createWithSeed(
+        adminAddress,
+        "monthly-pot",
+        program.programId,
+    );
+    try {
+        let monthlyPot = await program.account.monthlyPot.fetch(monthlyPotKey);
+        return monthlyPot as MonthlyPot;
     } catch {
         return null;
     }

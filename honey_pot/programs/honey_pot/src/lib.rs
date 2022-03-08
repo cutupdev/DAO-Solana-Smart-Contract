@@ -26,6 +26,16 @@ pub mod honey_pot {
         Ok(())
     }
 
+    pub fn initializeIdPool(
+        ctx: Context<InitializeIdPool>,
+        id_bump: u8,
+        timestamp: i64,
+        identifier: u64,
+    ) -> ProgramResult {
+        let id_pool = &mut ctx.accounts.id_pool;
+        id_pool.player = ctx.accounts.admin.key();
+        Ok(())
+    }
     /**
      * @dev Buy the amount of daily tickets
      */
@@ -48,7 +58,15 @@ pub mod honey_pot {
                 }
                 let rand = mul % daily_pot.count;
                 let claim_prize = daily_pot.prize;
-               
+                let time_seed = daily_pot.start_time;
+                let (winner, bump) = Pubkey::find_program_address(
+                    &[
+                        DAILY_SEED.as_bytes(),
+                        time_seed.to_string().as_bytes(),
+                        rand.to_string().as_bytes(),
+                    ],
+                    &honey_pot::ID,
+                );
                 daily_pot.pre_update(start_timestamp, claim_prize, winner);
             }
             daily_pot.update(start_timestamp);
@@ -103,7 +121,15 @@ pub mod honey_pot {
                 }
                 let rand = mul % weekly_pot.count;
                 let claim_prize = weekly_pot.prize;
-                
+                let time_seed = weekly_pot.start_time;
+                let (winner, bump) = Pubkey::find_program_address(
+                    &[
+                        WEEKLY_SEED.as_bytes(),
+                        time_seed.to_string().as_bytes(),
+                        rand.to_string().as_bytes(),
+                    ],
+                    &honey_pot::ID,
+                );
                 weekly_pot.pre_update(start_timestamp, claim_prize, winner);
             }
             weekly_pot.update(start_timestamp);
@@ -158,7 +184,15 @@ pub mod honey_pot {
                 }
                 let rand = mul % monthly_pot.count;
                 let claim_prize = monthly_pot.prize;
-                
+                let time_seed = monthly_pot.start_time;
+                let (winner, bump) = Pubkey::find_program_address(
+                    &[
+                        MONTHLY_SEED.as_bytes(),
+                        time_seed.to_string().as_bytes(),
+                        rand.to_string().as_bytes(),
+                    ],
+                    &honey_pot::ID,
+                );
                 monthly_pot.pre_update(start_timestamp, claim_prize, winner);
             }
             monthly_pot.update(start_timestamp);
@@ -207,7 +241,15 @@ pub mod honey_pot {
             }
             let rand = mul % daily_pot.count;
             let claim_prize = daily_pot.prize;
-            
+            let time_seed = daily_pot.start_time;
+            let (winner, bump) = Pubkey::find_program_address(
+                &[
+                    DAILY_SEED.as_bytes(),
+                    time_seed.to_string().as_bytes(),
+                    rand.to_string().as_bytes(),
+                ],
+                &honey_pot::ID,
+            );
             daily_pot.pre_update(start_timestamp, claim_prize, winner);
         }
 
@@ -234,7 +276,15 @@ pub mod honey_pot {
             }
             let rand = mul % weekly_pot.count;
             let claim_prize = weekly_pot.prize;
-            
+            let time_seed = weekly_pot.start_time;
+            let (winner, bump) = Pubkey::find_program_address(
+                &[
+                    WEEKLY_SEED.as_bytes(),
+                    time_seed.to_string().as_bytes(),
+                    rand.to_string().as_bytes(),
+                ],
+                &honey_pot::ID,
+            );
             weekly_pot.pre_update(start_timestamp, claim_prize, winner);
         }
 
@@ -261,7 +311,15 @@ pub mod honey_pot {
             }
             let rand = mul % monthly_pot.count;
             let claim_prize = monthly_pot.prize;
-            
+            let time_seed = monthly_pot.start_time;
+            let (winner, bump) = Pubkey::find_program_address(
+                &[
+                    MONTHLY_SEED.as_bytes(),
+                    time_seed.to_string().as_bytes(),
+                    rand.to_string().as_bytes(),
+                ],
+                &honey_pot::ID,
+            );
             monthly_pot.pre_update(start_timestamp, claim_prize, winner);
         }
 

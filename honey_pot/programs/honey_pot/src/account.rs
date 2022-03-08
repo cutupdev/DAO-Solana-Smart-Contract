@@ -12,38 +12,38 @@ pub struct GlobalPool {
 #[account]
 #[derive(Default)]
 pub struct IdPool {
-   pub player: Pubkey,                        //32
+    pub player: Pubkey, //32
 }
 
 #[account(zero_copy)]
 pub struct DailyPot {
-    // 2_240_080
-    pub count: u64,                            //8
-    pub start_time: i64,                       //8
-    pub prize: u64,                            //8
-    pub end_time: i64,                         //8
-    pub claim_prize: u64,                      //8
-    pub winner: Pubkey,                        //32
+    // 72
+    pub count: u64,       //8
+    pub start_time: i64,  //8
+    pub prize: u64,       //8
+    pub end_time: i64,    //8
+    pub claim_prize: u64, //8
+    pub winner: Pubkey,   //32
 }
 #[account(zero_copy)]
 pub struct WeeklyPot {
-    // 22_400_080
-    pub count: u64,                             //8
-    pub start_time: i64,                        //8
-    pub prize: u64,                             //8
-    pub end_time: i64,                          //8
-    pub claim_prize: u64,                       //8
-    pub winner: Pubkey,                         //32
+    // 72
+    pub count: u64,       //8
+    pub start_time: i64,  //8
+    pub prize: u64,       //8
+    pub end_time: i64,    //8
+    pub claim_prize: u64, //8
+    pub winner: Pubkey,   //32
 }
 #[account(zero_copy)]
 pub struct MonthlyPot {
-    // 224_000_080
-    pub count: u64,                              //8
-    pub start_time: i64,                         //8
-    pub prize: u64,                              //8
-    pub end_time: i64,                           //8
-    pub claim_prize: u64,                        //8
-    pub winner: Pubkey,                          //32
+    // 72
+    pub count: u64,       //8
+    pub start_time: i64,  //8
+    pub prize: u64,       //8
+    pub end_time: i64,    //8
+    pub claim_prize: u64, //8
+    pub winner: Pubkey,   //32
 }
 
 impl Default for DailyPot {

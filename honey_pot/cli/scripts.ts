@@ -15,8 +15,15 @@ import fs from 'fs';
 import { GlobalPool, DailyPot, WeeklyPot, MonthlyPot } from './types';
 import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
 
+const DAY_POOL_SIZE = 72;
+const WEEK_POOL_SIZE = 72;
+const MONTH_POOL_SIZE = 72;
+
 const GLOBAL_AUTHORITY_SEED = "global-authority";
 const REWARD_VAULT_SEED = "vault-authority";
+const DAILY_SEED = "daily-pot";
+const WEEKLY_SEED = "weekly-pot";
+const MONTHLY_SEED = "monthly-pot";
 const PROGRAM_ID = "GsDJ4KEj15GaC8ZyEDwBjMEfLC3CFCmJ2MsYeKoFfuM3";
 const TREASURY_WALLET = "Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu";
 
@@ -102,8 +109,6 @@ export const initProject = async (
         program.programId,
     );
 
-    console.log(DAY_POOL_SIZE);
-
     // Create the daily_pot with seed
     let ix = SystemProgram.createAccountWithSeed({
         fromPubkey: userAddress,
@@ -161,6 +166,31 @@ export const initProject = async (
     return false;
 }
 
+export const initIdPool = async (
+    userAddress: PublicKey,
+    identifier: number,
+    timestamp: number,
+) => {
+    const [idAddress, bump] = await PublicKey.findProgramAddress(
+        [Buffer.from(DAILY_SEED), Buffer.from(timestamp.toString()), Buffer.from(identifier.toString())],
+        program.programId
+    );
+
+    const tx = await program.rpc.inintializeIdPool(
+        bump, new anchor.BN(timestamp), new anchor.BN(identifier), {
+        accounts: {
+            admin: userAddress,
+            idPool: idAddress,
+            systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
+        },
+        instructions: [],
+        signers: [],
+    });
+    await solConnection.confirmTransaction(tx, "confirmed");
+
+    console.log(`The ID Pool is Successfully Initialized`);
+}
 /**
  * @dev But daily tickets function
  * @param userAddress The caller of this function- the player of the game
@@ -187,6 +217,13 @@ export const buyTicket = async (
         "daily-pot",
         program.programId,
     );
+
+    const dailyPot: DailyPot = await getDailyPot();
+    const timestamp = dailyPot.startTime.toNumber();
+    let identifier = dailyPot.count.toNumber();
+    for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
+        initIdPool(userAddress, _identifier, timestamp);
+    }
 
     const tx = await program.rpc.buyTicket(
         bump, vaultBump, new anchor.BN(amount), {

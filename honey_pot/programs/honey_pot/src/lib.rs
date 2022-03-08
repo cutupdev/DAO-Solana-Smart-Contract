@@ -26,7 +26,7 @@ pub mod honey_pot {
         Ok(())
     }
 
-    pub fn initializeIdPool(
+    pub fn initialize_id_pool(
         ctx: Context<InitializeIdPool>,
         id_bump: u8,
         timestamp: i64,

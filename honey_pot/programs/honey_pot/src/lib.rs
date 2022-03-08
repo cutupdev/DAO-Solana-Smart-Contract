@@ -1,4 +1,4 @@
-use anchor_lang::{prelude::AccountInfo, prelude::*, System};
+use anchor_lang::{prelude::AccountInfo, prelude::*, AccountSerialize, System};
 
 use solana_program::pubkey::Pubkey;
 
@@ -20,12 +20,12 @@ pub mod honey_pot {
     pub fn initialize(ctx: Context<Initialize>, global_bump: u8, vault_bump: u8) -> ProgramResult {
         let global_authority = &mut ctx.accounts.global_authority;
         global_authority.super_admin = ctx.accounts.admin.key();
-        let mut daily_pot = ctx.accounts.daily_pot.load_init()?;
-        let mut weekly_pot = ctx.accounts.weekly_pot.load_init()?;
-        let mut monthly_pot = ctx.accounts.monthly_pot.load_init()?;
+        let daily_pot = ctx.accounts.daily_pot.load_init()?;
+        let weekly_pot = ctx.accounts.weekly_pot.load_init()?;
+        let monthly_pot = ctx.accounts.monthly_pot.load_init()?;
         Ok(())
     }
-    
+
     /**
      * @dev Buy the amount of daily tickets
      */
@@ -48,7 +48,7 @@ pub mod honey_pot {
                 }
                 let rand = mul % daily_pot.count;
                 let claim_prize = daily_pot.prize;
-                let winner = daily_pot.entrants[rand as usize];
+               
                 daily_pot.pre_update(start_timestamp, claim_prize, winner);
             }
             daily_pot.update(start_timestamp);
@@ -103,7 +103,7 @@ pub mod honey_pot {
                 }
                 let rand = mul % weekly_pot.count;
                 let claim_prize = weekly_pot.prize;
-                let winner = weekly_pot.entrants[rand as usize];
+                
                 weekly_pot.pre_update(start_timestamp, claim_prize, winner);
             }
             weekly_pot.update(start_timestamp);
@@ -158,7 +158,7 @@ pub mod honey_pot {
                 }
                 let rand = mul % monthly_pot.count;
                 let claim_prize = monthly_pot.prize;
-                let winner = monthly_pot.entrants[rand as usize];
+                
                 monthly_pot.pre_update(start_timestamp, claim_prize, winner);
             }
             monthly_pot.update(start_timestamp);
@@ -207,7 +207,7 @@ pub mod honey_pot {
             }
             let rand = mul % daily_pot.count;
             let claim_prize = daily_pot.prize;
-            let winner = daily_pot.entrants[rand as usize];
+            
             daily_pot.pre_update(start_timestamp, claim_prize, winner);
         }
 
@@ -234,7 +234,7 @@ pub mod honey_pot {
             }
             let rand = mul % weekly_pot.count;
             let claim_prize = weekly_pot.prize;
-            let winner = weekly_pot.entrants[rand as usize];
+            
             weekly_pot.pre_update(start_timestamp, claim_prize, winner);
         }
 
@@ -261,7 +261,7 @@ pub mod honey_pot {
             }
             let rand = mul % monthly_pot.count;
             let claim_prize = monthly_pot.prize;
-            let winner = monthly_pot.entrants[rand as usize];
+            
             monthly_pot.pre_update(start_timestamp, claim_prize, winner);
         }
 
@@ -282,7 +282,8 @@ pub mod honey_pot {
 
         let start_timestamp = timestamp - (timestamp % DAY);
         require!(
-            daily_pot.end_time != start_timestamp, PotError::InvalidWinner
+            daily_pot.end_time != start_timestamp,
+            PotError::InvalidWinner
         );
 
         let prize = daily_pot.claim_prize * 90 / 100;
@@ -323,7 +324,8 @@ pub mod honey_pot {
 
         let start_timestamp = timestamp - (timestamp % DAY);
         require!(
-            weekly_pot.end_time != start_timestamp, PotError::InvalidWinner
+            weekly_pot.end_time != start_timestamp,
+            PotError::InvalidWinner
         );
 
         let prize = weekly_pot.claim_prize * 90 / 100;
@@ -364,7 +366,8 @@ pub mod honey_pot {
 
         let start_timestamp = timestamp - (timestamp % DAY);
         require!(
-            monthly_pot.end_time != start_timestamp, PotError::InvalidWinner
+            monthly_pot.end_time != start_timestamp,
+            PotError::InvalidWinner
         );
 
         let prize = monthly_pot.claim_prize * 90 / 100;
@@ -420,6 +423,24 @@ pub struct Initialize<'info> {
 
     #[account(zero)]
     pub monthly_pot: AccountLoader<'info, MonthlyPot>,
+
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(id_bump: u8, timestamp: i64, identifier: u64)]
+pub struct InitializeIdPool<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+
+    #[account(
+        init_if_needed,
+        seeds = [DAILY_SEED.as_ref(), timestamp.to_string().as_ref(), identifier.to_string().as_ref()],
+        bump = id_bump,
+        payer = admin
+    )]
+    pub id_pool: Account<'info, IdPool>,
 
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,

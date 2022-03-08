@@ -484,11 +484,16 @@
     },
     {
       "code": 6002,
+      "name": "InvalidWinner",
+      "msg": "The Owner is not last pot's Winner"
+    },
+    {
+      "code": 6003,
       "name": "InsufficientRewardVault",
       "msg": "Insufficient Reward SOL Balance"
     },
     {
-      "code": 6003,
+      "code": 6004,
       "name": "InsufficientPlayerVault",
       "msg": "Insufficient PlayerRewardPool SOL Balance"
     }

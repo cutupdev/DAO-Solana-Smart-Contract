@@ -15,11 +15,11 @@ import fs from 'fs';
 import { GlobalPool, DailyPot, WeeklyPot, MonthlyPot } from './types';
 import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
 
-const DAY_POOL_SIZE = 424120;
-const WEEK_POOL_SIZE = 40000;
-const MONTH_POOL_SIZE = 50000;
+const DAY_POOL_SIZE = 2240080;
+const WEEK_POOL_SIZE = 22400080;
+const MONTH_POOL_SIZE = 224000080;
 const GLOBAL_AUTHORITY_SEED = "global-authority";
-const REWARD_VAULT_SEED = "reward-vault";
+const REWARD_VAULT_SEED = "vault-authority";
 const PROGRAM_ID = "GsDJ4KEj15GaC8ZyEDwBjMEfLC3CFCmJ2MsYeKoFfuM3";
 const TREASURY_WALLET = "Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu";
 
@@ -67,7 +67,7 @@ const main = async () => {
 
     // await claim(payer.publicKey);
 
-}
+};
 
 /**
  * @dev Before use this program, the accounts have to be initialized
@@ -595,3 +595,5 @@ export const getMonthlyPot = async (
         return null;
     }
 }
+
+main();

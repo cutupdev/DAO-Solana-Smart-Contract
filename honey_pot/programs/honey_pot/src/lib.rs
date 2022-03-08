@@ -12,7 +12,7 @@ use constants::*;
 use error::*;
 use utils::*;
 
-declare_id!("GsDJ4KEj15GaC8ZyEDwBjMEfLC3CFCmJ2MsYeKoFfuM3");
+declare_id!("CKyZk5sDQ8hzap6STpCEgWhZC4a5dnnrTAv3pZNRQ98F");
 
 #[program]
 pub mod honey_pot {
@@ -20,14 +20,36 @@ pub mod honey_pot {
     pub fn initialize(ctx: Context<Initialize>, global_bump: u8, vault_bump: u8) -> ProgramResult {
         let global_authority = &mut ctx.accounts.global_authority;
         global_authority.super_admin = ctx.accounts.admin.key();
-        let daily_pot = ctx.accounts.daily_pot.load_init()?;
-        let weekly_pot = ctx.accounts.weekly_pot.load_init()?;
-        let monthly_pot = ctx.accounts.monthly_pot.load_init()?;
+        let mut daily_pot = ctx.accounts.daily_pot.load_init()?;
+        let mut weekly_pot = ctx.accounts.weekly_pot.load_init()?;
+        let mut monthly_pot = ctx.accounts.monthly_pot.load_init()?;
         Ok(())
     }
 
     pub fn initialize_id_pool(
         ctx: Context<InitializeIdPool>,
+        id_bump: u8,
+        timestamp: i64,
+        identifier: u64,
+    ) -> ProgramResult {
+        let id_pool = &mut ctx.accounts.id_pool;
+        id_pool.player = ctx.accounts.admin.key();
+        Ok(())
+    }
+
+    pub fn initialize_weekly_id_pool(
+        ctx: Context<InitializeWeeklyIdPool>,
+        id_bump: u8,
+        timestamp: i64,
+        identifier: u64,
+    ) -> ProgramResult {
+        let id_pool = &mut ctx.accounts.id_pool;
+        id_pool.player = ctx.accounts.admin.key();
+        Ok(())
+    }
+
+    pub fn initialize_monthly_id_pool(
+        ctx: Context<InitializeMonthlyIdPool>,
         id_bump: u8,
         timestamp: i64,
         identifier: u64,
@@ -495,6 +517,42 @@ pub struct InitializeIdPool<'info> {
     #[account(
         init_if_needed,
         seeds = [DAILY_SEED.as_ref(), timestamp.to_string().as_ref(), identifier.to_string().as_ref()],
+        bump = id_bump,
+        payer = admin
+    )]
+    pub id_pool: Account<'info, IdPool>,
+
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(id_bump: u8, timestamp: i64, identifier: u64)]
+pub struct InitializeWeeklyIdPool<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+
+    #[account(
+        init_if_needed,
+        seeds = [WEEKLY_SEED.as_ref(), timestamp.to_string().as_ref(), identifier.to_string().as_ref()],
+        bump = id_bump,
+        payer = admin
+    )]
+    pub id_pool: Account<'info, IdPool>,
+
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(id_bump: u8, timestamp: i64, identifier: u64)]
+pub struct InitializeMonthlyIdPool<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+
+    #[account(
+        init_if_needed,
+        seeds = [MONTHLY_SEED.as_ref(), timestamp.to_string().as_ref(), identifier.to_string().as_ref()],
         bump = id_bump,
         payer = admin
     )]

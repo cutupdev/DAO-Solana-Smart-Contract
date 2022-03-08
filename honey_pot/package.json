@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "ts-node": "export ANCHOR_WALLET=/home/fury/.config/solana/id.json && ts-node ./cli/scripts.ts"
+        "ts-node": "export ANCHOR_WALLET=/home/fury/Rust/deploy-keypair.json && ts-node ./cli/scripts.ts"
     },
     "dependencies": {
         "@project-serum/anchor": "^0.20.1",

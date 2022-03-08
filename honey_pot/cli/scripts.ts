@@ -16,9 +16,9 @@ import { GlobalPool, DailyPot, WeeklyPot, MonthlyPot } from './types';
 import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
 
 // Const Poolsize
-const DAY_POOL_SIZE = 72;
-const WEEK_POOL_SIZE = 72;
-const MONTH_POOL_SIZE = 72;
+const DAY_POOL_SIZE = 80;
+const WEEK_POOL_SIZE = 80;
+const MONTH_POOL_SIZE = 80;
 
 // Const SEEDs
 const GLOBAL_AUTHORITY_SEED = "global-authority";
@@ -28,7 +28,7 @@ const WEEKLY_SEED = "weekly-pot";
 const MONTHLY_SEED = "monthly-pot";
 
 // Publickeys
-const PROGRAM_ID = "GsDJ4KEj15GaC8ZyEDwBjMEfLC3CFCmJ2MsYeKoFfuM3";
+const PROGRAM_ID = "CKyZk5sDQ8hzap6STpCEgWhZC4a5dnnrTAv3pZNRQ98F";
 const TREASURY_WALLET = "Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu";
 
 anchor.setProvider(anchor.Provider.local(web3.clusterApiUrl('devnet')));
@@ -145,6 +145,8 @@ export const initProject = async (
         space: MONTH_POOL_SIZE,
         programId: program.programId,
     });
+
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
     // Call the initialize function of the program
     const tx = await program.rpc.initialize(

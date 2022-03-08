@@ -58,6 +58,45 @@
       ]
     },
     {
+      "name": "initializeIdPool",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "idPool",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "idBump",
+          "type": "u8"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "identifier",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "buyTickets",
       "accounts": [
         {
@@ -348,6 +387,18 @@
       }
     },
     {
+      "name": "IdPool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
       "name": "DailyPot",
       "type": {
         "kind": "struct",
@@ -363,15 +414,6 @@
           {
             "name": "prize",
             "type": "u64"
-          },
-          {
-            "name": "entrants",
-            "type": {
-              "array": [
-                "publicKey",
-                70000
-              ]
-            }
           },
           {
             "name": "endTime",
@@ -406,15 +448,6 @@
             "type": "u64"
           },
           {
-            "name": "entrants",
-            "type": {
-              "array": [
-                "publicKey",
-                700000
-              ]
-            }
-          },
-          {
             "name": "endTime",
             "type": "i64"
           },
@@ -445,15 +478,6 @@
           {
             "name": "prize",
             "type": "u64"
-          },
-          {
-            "name": "entrants",
-            "type": {
-              "array": [
-                "publicKey",
-                7000000
-              ]
-            }
           },
           {
             "name": "endTime",

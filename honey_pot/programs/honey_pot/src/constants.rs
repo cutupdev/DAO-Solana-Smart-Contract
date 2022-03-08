@@ -11,6 +11,6 @@ pub const GLOBAL_AUTHORITY_SEED: &str = "global-authority";
 pub const VAULT_AUTHORITY_SEED: &str = "vault-authority";
 pub const RANDOM_SEED: &str = "random-choose";
 
-pub const MAX_DAILY_TICKETS: usize = 70000; // Maximum 70000
-pub const MAX_WEEKLY_TICKETS: usize = 700000; // Maximum 700000
-pub const MAX_MONTHLY_TICKETS: usize = 7000000; // Maximum 7000000
+pub const DAILY_SEED: &str = "daily-pot";
+pub const WEEKLY_SEED: &str = "weekly-pot";
+pub const MONTHLY_SEED: &str = "monthly-pot";

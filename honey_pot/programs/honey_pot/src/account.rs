@@ -9,13 +9,18 @@ pub struct GlobalPool {
     pub super_admin: Pubkey, // 32
 }
 
+#[account]
+#[derive(Default)]
+pub struct IdPool {
+   pub player: Pubkey,                        //32
+}
+
 #[account(zero_copy)]
 pub struct DailyPot {
     // 2_240_080
     pub count: u64,                            //8
     pub start_time: i64,                       //8
     pub prize: u64,                            //8
-    pub entrants: [Pubkey; MAX_DAILY_TICKETS], //32*70000
     pub end_time: i64,                         //8
     pub claim_prize: u64,                      //8
     pub winner: Pubkey,                        //32
@@ -26,7 +31,6 @@ pub struct WeeklyPot {
     pub count: u64,                             //8
     pub start_time: i64,                        //8
     pub prize: u64,                             //8
-    pub entrants: [Pubkey; MAX_WEEKLY_TICKETS], //32*700000
     pub end_time: i64,                          //8
     pub claim_prize: u64,                       //8
     pub winner: Pubkey,                         //32
@@ -37,7 +41,6 @@ pub struct MonthlyPot {
     pub count: u64,                              //8
     pub start_time: i64,                         //8
     pub prize: u64,                              //8
-    pub entrants: [Pubkey; MAX_MONTHLY_TICKETS], //32*7000000
     pub end_time: i64,                           //8
     pub claim_prize: u64,                        //8
     pub winner: Pubkey,                          //32
@@ -50,7 +53,6 @@ impl Default for DailyPot {
             count: 0,
             start_time: 0,
             prize: 0,
-            entrants: [Pubkey::default(); MAX_DAILY_TICKETS],
             end_time: 0,
             claim_prize: 0,
             winner: Pubkey::default(),
@@ -59,7 +61,6 @@ impl Default for DailyPot {
 }
 impl DailyPot {
     pub fn append(&mut self, buyer: Pubkey) {
-        self.entrants[self.count as usize] = buyer;
         self.prize += DEPOSIT_VAULT;
         self.count += 1;
     }
@@ -82,7 +83,6 @@ impl Default for WeeklyPot {
             count: 0,
             start_time: 0,
             prize: 0,
-            entrants: [Pubkey::default(); MAX_WEEKLY_TICKETS],
             end_time: 0,
             claim_prize: 0,
             winner: Pubkey::default(),
@@ -91,7 +91,6 @@ impl Default for WeeklyPot {
 }
 impl WeeklyPot {
     pub fn append(&mut self, buyer: Pubkey) {
-        self.entrants[self.count as usize] = buyer;
         self.prize += DEPOSIT_VAULT;
         self.count += 1;
     }
@@ -114,7 +113,6 @@ impl Default for MonthlyPot {
             count: 0,
             start_time: 0,
             prize: 0,
-            entrants: [Pubkey::default(); MAX_MONTHLY_TICKETS],
             end_time: 0,
             claim_prize: 0,
             winner: Pubkey::default(),
@@ -123,7 +121,6 @@ impl Default for MonthlyPot {
 }
 impl MonthlyPot {
     pub fn append(&mut self, buyer: Pubkey) {
-        self.entrants[self.count as usize] = buyer;
         self.prize += DEPOSIT_VAULT;
         self.count += 1;
     }

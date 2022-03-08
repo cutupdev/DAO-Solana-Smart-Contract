@@ -63,9 +63,10 @@ const main = async () => {
     );
     console.log('RewardVault: ', rewardVault.toBase58());
 
-    await initProject(payer.publicKey);
+    // await initProject(payer.publicKey);
 
     // await buyTicket(payer.publicKey, 5);
+    await buyWeeklyTicket(payer.publicKey, 3);
     // await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
     // const dailyPot: DailyPot = await getDailyPot();
     // console.log(dailyPot);
@@ -188,7 +189,7 @@ export const initIdPool = async (
         program.programId
     );
 
-    const tx = await program.rpc.inintializeIdPool(
+    const tx = await program.rpc.initializeIdPool(
         bump, new anchor.BN(timestamp), new anchor.BN(identifier), {
         accounts: {
             admin: userAddress,
@@ -220,7 +221,7 @@ export const initWeeklyIdPool = async (
         program.programId
     );
 
-    const tx = await program.rpc.inintializeWeeklyIdPool(
+    const tx = await program.rpc.initializeWeeklyIdPool(
         bump, new anchor.BN(timestamp), new anchor.BN(identifier), {
         accounts: {
             admin: userAddress,
@@ -252,7 +253,7 @@ export const initMonthlyIdPool = async (
         program.programId
     );
 
-    const tx = await program.rpc.inintializeMonthlyIdPool(
+    const tx = await program.rpc.initializeMonthlyIdPool(
         bump, new anchor.BN(timestamp), new anchor.BN(identifier), {
         accounts: {
             admin: userAddress,
@@ -277,17 +278,13 @@ export const buyTicket = async (
     userAddress: PublicKey,
     amount: number
 ) => {
-    const [globalAuthority, bump] = await PublicKey.findProgramAddress(
-        [Buffer.from(GLOBAL_AUTHORITY_SEED)],
-        program.programId
-    );
 
     const [rewardVault, vaultBump] = await PublicKey.findProgramAddress(
         [Buffer.from(REWARD_VAULT_SEED)],
         program.programId
     );
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let dailyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -295,15 +292,18 @@ export const buyTicket = async (
         program.programId,
     );
 
+    console.log("---------------------");
     const dailyPot: DailyPot = await getDailyPot();
     const timestamp = dailyPot.startTime.toNumber();
     let identifier = dailyPot.count.toNumber();
     for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
-        initIdPool(userAddress, _identifier, timestamp);
+        await initIdPool(userAddress, _identifier, timestamp);
     }
 
-    const tx = await program.rpc.buyTicket(
-        bump, vaultBump, new anchor.BN(amount), {
+    console.log("---------------------");
+
+    const tx = await program.rpc.buyTickets(
+        vaultBump, new anchor.BN(amount), {
         accounts: {
             owner: userAddress,
             dailyPot: dailyPotKey,
@@ -339,7 +339,7 @@ export const buyWeeklyTicket = async (
         program.programId
     );
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let weeklyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -354,7 +354,7 @@ export const buyWeeklyTicket = async (
         initWeeklyIdPool(userAddress, _identifier, timestamp);
     }
 
-    const tx = await program.rpc.buyWeeklyTicket(
+    const tx = await program.rpc.buyWeeklyTickets(
         bump, vaultBump, new anchor.BN(amount), {
         accounts: {
             owner: userAddress,
@@ -390,7 +390,7 @@ export const buyMonthlyTicket = async (
         program.programId
     );
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let monthlyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -405,7 +405,7 @@ export const buyMonthlyTicket = async (
         initIdPool(userAddress, _identifier, timestamp);
     }
 
-    const tx = await program.rpc.buyMonthlyTicket(
+    const tx = await program.rpc.buyMonthlyTickets(
         bump, vaultBump, new anchor.BN(amount), {
         accounts: {
             owner: userAddress,
@@ -431,7 +431,7 @@ export const revealWinner = async (
 ) => {
 
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let dailyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -462,7 +462,7 @@ export const revealWeeklyWinner = async (
 ) => {
 
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let weeklyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -493,7 +493,7 @@ export const revealMonthlyWinner = async (
 ) => {
 
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let monthlyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -526,7 +526,7 @@ export const claim = async (
         program.programId
     );
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
     const dailyPot: DailyPot = await getDailyPot();
     const claimPrize = dailyPot.claimPrize;
 
@@ -567,7 +567,7 @@ export const claimWeekly = async (
         program.programId
     );
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
     const weeklyPot: WeeklyPot = await getWeeklyPot();
     const claimPrize = weeklyPot.claimPrize;
 
@@ -608,7 +608,7 @@ export const claimMonthly = async (
         program.programId
     );
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
     const monthlyPot: MonthlyPot = await getMonthlyPot();
     const claimPrize = monthlyPot.claimPrize;
 
@@ -662,7 +662,7 @@ export const getGlobalState = async (
 export const getDailyPot = async (
 ): Promise<DailyPot | null> => {
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let dailyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -684,7 +684,7 @@ export const getDailyPot = async (
 export const getWeeklyPot = async (
 ): Promise<WeeklyPot | null> => {
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let weeklyPotKey = await PublicKey.createWithSeed(
         adminAddress,
@@ -706,7 +706,7 @@ export const getWeeklyPot = async (
 export const getMonthlyPot = async (
 ): Promise<MonthlyPot | null> => {
     const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.admin;
+    const adminAddress = globalPool.superAdmin;
 
     let monthlyPotKey = await PublicKey.createWithSeed(
         adminAddress,

@@ -67,6 +67,9 @@ pub mod honey_pot {
 
         let start_timestamp = timestamp - (timestamp % DAY);
 
+        if daily_pot.count == 0 {
+            daily_pot.update(start_timestamp);
+        }
         if start_timestamp != daily_pot.start_time {
             if start_timestamp != daily_pot.end_time {
                 let (player_address, bump) = Pubkey::find_program_address(

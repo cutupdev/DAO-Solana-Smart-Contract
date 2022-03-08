@@ -66,7 +66,8 @@ const main = async () => {
     // await initProject(payer.publicKey);
 
     // await buyTicket(payer.publicKey, 5);
-    await buyWeeklyTicket(payer.publicKey, 3);
+    // await buyWeeklyTicket(payer.publicKey, 3);
+    await buyMonthlyTicket(payer.publicKey, 3);
     // await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
     // const dailyPot: DailyPot = await getDailyPot();
     // console.log(dailyPot);
@@ -351,11 +352,11 @@ export const buyWeeklyTicket = async (
     const timestamp = weeklyPot.startTime.toNumber();
     let identifier = weeklyPot.count.toNumber();
     for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
-        initWeeklyIdPool(userAddress, _identifier, timestamp);
+        await initWeeklyIdPool(userAddress, _identifier, timestamp);
     }
 
     const tx = await program.rpc.buyWeeklyTickets(
-        bump, vaultBump, new anchor.BN(amount), {
+        vaultBump, new anchor.BN(amount), {
         accounts: {
             owner: userAddress,
             weeklyPot: weeklyPotKey,
@@ -402,11 +403,11 @@ export const buyMonthlyTicket = async (
     const timestamp = monthlyPot.startTime.toNumber();
     let identifier = monthlyPot.count.toNumber();
     for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
-        initIdPool(userAddress, _identifier, timestamp);
+        await initMonthlyIdPool(userAddress, _identifier, timestamp);
     }
 
     const tx = await program.rpc.buyMonthlyTickets(
-        bump, vaultBump, new anchor.BN(amount), {
+        vaultBump, new anchor.BN(amount), {
         accounts: {
             owner: userAddress,
             monthlyPot: monthlyPotKey,

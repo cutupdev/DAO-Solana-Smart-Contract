@@ -132,6 +132,9 @@ pub mod honey_pot {
         let mut weekly_pot = ctx.accounts.weekly_pot.load_mut()?;
 
         let start_timestamp = timestamp - (timestamp % WEEK);
+        if weekly_pot.count == 0 {
+            weekly_pot.update(start_timestamp);
+        }
 
         if start_timestamp != weekly_pot.start_time {
             if start_timestamp != weekly_pot.end_time {
@@ -195,6 +198,9 @@ pub mod honey_pot {
         let mut monthly_pot = ctx.accounts.monthly_pot.load_mut()?;
 
         let start_timestamp = timestamp - (timestamp % MONTH);
+        if monthly_pot.count == 0 {
+            monthly_pot.update(start_timestamp);
+        }
 
         if start_timestamp != monthly_pot.start_time {
             if start_timestamp != monthly_pot.end_time {

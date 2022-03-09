@@ -374,14 +374,9 @@ pub mod honey_pot {
         let timestamp = Clock::get()?.unix_timestamp;
         let mut daily_pot = ctx.accounts.daily_pot.load_mut()?;
 
-        require!(
-            daily_pot.winner != ctx.accounts.owner.to_account_info().key(),
-            PotError::InvalidOwner
-        );
-
         let start_timestamp = timestamp - (timestamp % DAY);
         require!(
-            daily_pot.end_time != start_timestamp,
+            daily_pot.end_time == start_timestamp,
             PotError::InvalidWinner
         );
 
@@ -416,14 +411,9 @@ pub mod honey_pot {
         let timestamp = Clock::get()?.unix_timestamp;
         let mut weekly_pot = ctx.accounts.weekly_pot.load_mut()?;
 
+        let start_timestamp = timestamp - (timestamp % WEEK);
         require!(
-            weekly_pot.winner != ctx.accounts.owner.to_account_info().key(),
-            PotError::InvalidOwner
-        );
-
-        let start_timestamp = timestamp - (timestamp % DAY);
-        require!(
-            weekly_pot.end_time != start_timestamp,
+            weekly_pot.end_time == start_timestamp,
             PotError::InvalidWinner
         );
 
@@ -458,14 +448,9 @@ pub mod honey_pot {
         let timestamp = Clock::get()?.unix_timestamp;
         let mut monthly_pot = ctx.accounts.monthly_pot.load_mut()?;
 
+        let start_timestamp = timestamp - (timestamp % MONTH);
         require!(
-            monthly_pot.winner != ctx.accounts.owner.to_account_info().key(),
-            PotError::InvalidOwner
-        );
-
-        let start_timestamp = timestamp - (timestamp % DAY);
-        require!(
-            monthly_pot.end_time != start_timestamp,
+            monthly_pot.end_time == start_timestamp,
             PotError::InvalidWinner
         );
 

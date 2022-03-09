@@ -89,7 +89,7 @@ const main = async () => {
     console.log(winner.toBase58());
     // console.log(dailyPot);
 
-    // await claim(payer.publicKey);
+    await claim(payer.publicKey);
 
 };
 
@@ -564,29 +564,37 @@ export const claim = async (
     const dailyPot: DailyPot = await getDailyPot();
     const claimPrize = dailyPot.claimPrize;
 
-    console.log(claimPrize.toNumber());
+    let winnerAcc = await program.account.idPool.fetch(dailyPot.winner);
+    let winner = winnerAcc.player;
 
-    let dailyPotKey = await PublicKey.createWithSeed(
-        adminAddress,
-        "daily-pot",
-        program.programId,
-    );
-    const tx = await program.rpc.claim(
-        vaultBump, {
-        accounts: {
-            owner: userAddress,
-            dailyPot: dailyPotKey,
-            rewardVault,
-            treasuryWallet: new PublicKey(TREASURY_WALLET),
-            systemProgram: SystemProgram.programId,
-        },
-        instructions: [],
-        signers: [],
-    });
-    await solConnection.confirmTransaction(tx, "confirmed");
+    console.log(userAddress);
+    console.log(winner);
+    if (userAddress.toBase58() === winner.toBase58()) {
+        console.log(claimPrize.toNumber());
 
-    console.log(`The Winner ${userAddress.toBase58()} Claimed ${claimPrize.toNumber()} Successfully`);
+        let dailyPotKey = await PublicKey.createWithSeed(
+            adminAddress,
+            "daily-pot",
+            program.programId,
+        );
+        const tx = await program.rpc.claim(
+            vaultBump, {
+            accounts: {
+                owner: userAddress,
+                dailyPot: dailyPotKey,
+                rewardVault,
+                treasuryWallet: new PublicKey(TREASURY_WALLET),
+                systemProgram: SystemProgram.programId,
+            },
+            instructions: [],
+            signers: [],
+        });
+        await solConnection.confirmTransaction(tx, "confirmed");
 
+        console.log(`The Winner ${userAddress.toBase58()} Claimed ${claimPrize.toNumber()} Successfully`);
+    } else {
+        console.log(`You aren't the winner!`);
+    }
 }
 
 /**

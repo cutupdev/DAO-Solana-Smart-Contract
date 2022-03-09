@@ -67,12 +67,24 @@ const main = async () => {
 
     // await buyTicket(payer.publicKey, 5);
     // await buyWeeklyTicket(payer.publicKey, 3);
-    await buyMonthlyTicket(payer.publicKey, 3);
+    // await buyMonthlyTicket(payer.publicKey, 3);
     // await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
     // const dailyPot: DailyPot = await getDailyPot();
     // console.log(dailyPot);
 
-    // await revealWinner(payer.publicKey);
+    const dailyPot: DailyPot = await getDailyPot();
+    const timestamp = dailyPot.startTime.toNumber();
+    let identifier = 0;
+
+    for (var _identifier = identifier; _identifier < identifier + 15; _identifier++) {
+
+        const [idAddress, bump1] = await PublicKey.findProgramAddress(
+            [Buffer.from(DAILY_SEED), Buffer.from(timestamp.toString()), Buffer.from(_identifier.toString())],
+            program.programId
+        );
+        console.log(idAddress.toBase58());
+    }
+    await revealWinner(payer.publicKey);
     // console.log(dailyPot);
 
     // await claim(payer.publicKey);
@@ -449,6 +461,18 @@ export const revealWinner = async (
             signers: [],
         });
     await solConnection.confirmTransaction(tx, "confirmed");
+
+    const daily_pot: DailyPot = await getDailyPot();
+    console.log(daily_pot);
+    console.log(daily_pot.endTime.toNumber());
+    console.log(daily_pot.startTime.toNumber());
+    console.log(daily_pot.count.toNumber());
+    console.log(daily_pot.claimPrize.toNumber());
+
+    console.log(daily_pot.winner.toBase58());
+    let winner = await program.account.IdPool.fetch(daily_pot.winner);
+    console.log(winner.toBase58());
+
 
     console.log("Reveal Daily Winner Succeed");
 

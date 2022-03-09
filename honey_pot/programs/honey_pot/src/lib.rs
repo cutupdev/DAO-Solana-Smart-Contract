@@ -260,6 +260,9 @@ pub mod honey_pot {
         let mut daily_pot = ctx.accounts.daily_pot.load_mut()?;
 
         let start_timestamp = timestamp - (timestamp % DAY);
+        if daily_pot.end_time == 0 {
+            daily_pot.end_time = start_timestamp - DAY;
+        }
         if start_timestamp != daily_pot.end_time {
             let (player_address, bump) = Pubkey::find_program_address(
                 &[RANDOM_SEED.as_bytes(), timestamp.to_string().as_bytes()],
@@ -295,6 +298,9 @@ pub mod honey_pot {
         let mut weekly_pot = ctx.accounts.weekly_pot.load_mut()?;
 
         let start_timestamp = timestamp - (timestamp % WEEK);
+        if weekly_pot.end_time == 0 {
+            weekly_pot.end_time = start_timestamp - WEEK;
+        }
         if start_timestamp != weekly_pot.end_time {
             let (player_address, bump) = Pubkey::find_program_address(
                 &[RANDOM_SEED.as_bytes(), timestamp.to_string().as_bytes()],
@@ -330,6 +336,10 @@ pub mod honey_pot {
         let mut monthly_pot = ctx.accounts.monthly_pot.load_mut()?;
 
         let start_timestamp = timestamp - (timestamp % MONTH);
+        if monthly_pot.end_time == 0 {
+            monthly_pot.end_time = start_timestamp - MONTH;
+        }
+
         if start_timestamp != monthly_pot.end_time {
             let (player_address, bump) = Pubkey::find_program_address(
                 &[RANDOM_SEED.as_bytes(), timestamp.to_string().as_bytes()],

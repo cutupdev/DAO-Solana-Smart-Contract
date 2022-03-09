@@ -369,11 +369,18 @@ export const buyWeeklyTicket = async (
         program.programId,
     );
 
-    const weeklyPot: WeeklyPot = await getWeeklyPot();
-    const timestamp = weeklyPot.startTime.toNumber();
-    let identifier = weeklyPot.count.toNumber();
+    // Initialize the WeeklyIdPool with timestamp and count
+    var ts = Math.round((new Date()).getTime() / 1000);
+    const stTime = ts - ts % WEEK;
+    const dailyPot: DailyPot = await getDailyPot();
+    let timestamp = dailyPot.startTime.toNumber();
+    let identifier = dailyPot.count.toNumber();
+    if (stTime != timestamp) {
+        identifier = 0;
+        timestamp = stTime;
+    }
     for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
-        await initWeeklyIdPool(userAddress, _identifier, timestamp);
+        await initIdPool(userAddress, _identifier, timestamp);
     }
 
     const tx = await program.rpc.buyWeeklyTickets(
@@ -420,9 +427,16 @@ export const buyMonthlyTicket = async (
         program.programId,
     );
 
+    // Initialize the IdPool with timestamp and count
+    var ts = Math.round((new Date()).getTime() / 1000);
+    const stTime = ts - ts % MONTH;
     const monthlyPot: MonthlyPot = await getMonthlyPot();
-    const timestamp = monthlyPot.startTime.toNumber();
+    let timestamp = monthlyPot.startTime.toNumber();
     let identifier = monthlyPot.count.toNumber();
+    if (stTime != timestamp) {
+        identifier = 0;
+        timestamp = stTime;
+    }
     for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
         await initMonthlyIdPool(userAddress, _identifier, timestamp);
     }

@@ -20,6 +20,11 @@ const DAY_POOL_SIZE = 80;
 const WEEK_POOL_SIZE = 80;
 const MONTH_POOL_SIZE = 80;
 
+// Set the Duration of the pot
+const DAY = 60 * 60 * 24;
+const WEEK = 60 * 60 * 24 * 7;
+const MONTH = 60 * 60 * 24 * 30;
+
 // Const SEEDs
 const GLOBAL_AUTHORITY_SEED = "global-authority";
 const REWARD_VAULT_SEED = "vault-authority";
@@ -75,16 +80,13 @@ const main = async () => {
     const dailyPot: DailyPot = await getDailyPot();
     const timestamp = dailyPot.startTime.toNumber();
     let identifier = 0;
+    var ts = Math.round((new Date()).getTime() / 1000);
+    const st = ts - ts % DAY;
+    console.log(st);
 
-    for (var _identifier = identifier; _identifier < identifier + 29; _identifier++) {
 
-        const [idAddress, bump1] = await PublicKey.findProgramAddress(
-            [Buffer.from(DAILY_SEED), Buffer.from(timestamp.toString()), Buffer.from(_identifier.toString())],
-            program.programId
-        );
-        console.log(idAddress.toBase58());
-    }
-    await revealWinner(payer.publicKey);
+    const winner = await revealWinner(payer.publicKey);
+    console.log(winner.toBase58());
     // console.log(dailyPot);
 
     // await claim(payer.publicKey);
@@ -159,8 +161,6 @@ export const initProject = async (
         space: MONTH_POOL_SIZE,
         programId: program.programId,
     });
-
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
     // Call the initialize function of the program
     const tx = await program.rpc.initialize(
@@ -307,9 +307,17 @@ export const buyTicket = async (
     );
 
     console.log("---------------------");
+
+    // Initialize the IdPool with timestamp and count
+    var ts = Math.round((new Date()).getTime() / 1000);
+    const stTime = ts - ts % DAY;
     const dailyPot: DailyPot = await getDailyPot();
-    const timestamp = dailyPot.startTime.toNumber();
+    let timestamp = dailyPot.startTime.toNumber();
     let identifier = dailyPot.count.toNumber();
+    if (stTime != timestamp) {
+        identifier = 0;
+        timestamp = stTime;
+    }
     for (var _identifier = identifier; _identifier < identifier + amount; _identifier++) {
         await initIdPool(userAddress, _identifier, timestamp);
     }
@@ -442,41 +450,41 @@ export const buyMonthlyTicket = async (
  */
 export const revealWinner = async (
     userAddress: PublicKey,
-) => {
+): Promise<PublicKey> => {
 
-    const globalPool: GlobalPool = await getGlobalState();
-    const adminAddress = globalPool.superAdmin;
+    var ts = Math.round((new Date()).getTime() / 1000);
+    const stTime = ts - ts % DAY;
+    const dailyPot: DailyPot = await getDailyPot();
+    let timestamp = dailyPot.endTime.toNumber();
 
-    let dailyPotKey = await PublicKey.createWithSeed(
-        adminAddress,
-        "daily-pot",
-        program.programId,
-    );
-    const tx = await program.rpc.revealWinner(
-        {
-            accounts: {
-                owner: userAddress,
-                dailyPot: dailyPotKey,
-            },
-            instructions: [],
-            signers: [],
-        });
-    await solConnection.confirmTransaction(tx, "confirmed");
+    if (stTime != timestamp) {
 
-    const daily_pot: DailyPot = await getDailyPot();
-    console.log(daily_pot);
-    console.log(daily_pot.endTime.toNumber());
-    console.log(daily_pot.startTime.toNumber());
-    console.log(daily_pot.count.toNumber());
-    console.log(daily_pot.claimPrize.toNumber());
+        const globalPool: GlobalPool = await getGlobalState();
+        const adminAddress = globalPool.superAdmin;
 
-    console.log(daily_pot.winner.toBase58());
-    let winner = await program.account.idPool.fetch(daily_pot.winner);
-    console.log(winner.player.toBase58());
+        let dailyPotKey = await PublicKey.createWithSeed(
+            adminAddress,
+            "daily-pot",
+            program.programId,
+        );
+        const tx = await program.rpc.revealWinner(
+            {
+                accounts: {
+                    owner: userAddress,
+                    dailyPot: dailyPotKey,
+                },
+                instructions: [],
+                signers: [],
+            });
+        await solConnection.confirmTransaction(tx, "confirmed");
 
+    }
+
+    let winnerAcc = await program.account.idPool.fetch(dailyPot.winner);
+    let winner = winnerAcc.player;
 
     console.log("Reveal Daily Winner Succeed");
-
+    return winner;
 }
 
 /**

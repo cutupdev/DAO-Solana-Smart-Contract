@@ -263,7 +263,7 @@ pub mod honey_pot {
         if daily_pot.end_time == 0 {
             daily_pot.end_time = start_timestamp - DAY;
         }
-        if start_timestamp == daily_pot.end_time {
+        if start_timestamp != daily_pot.end_time {
             let (player_address, bump) = Pubkey::find_program_address(
                 &[RANDOM_SEED.as_bytes(), timestamp.to_string().as_bytes()],
                 &honey_pot::ID,

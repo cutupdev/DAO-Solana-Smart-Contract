@@ -65,7 +65,7 @@ const main = async () => {
 
     // await initProject(payer.publicKey);
 
-    // await buyTicket(payer.publicKey, 5);
+    // await buyTicket(payer.publicKey, 1);
     // await buyWeeklyTicket(payer.publicKey, 3);
     // await buyMonthlyTicket(payer.publicKey, 3);
     // await buyTicket(new PublicKey("Fs8R7R6dP3B7mAJ6QmWZbomBRuTbiJyiR4QYjoxhLdPu"), 5);
@@ -76,7 +76,7 @@ const main = async () => {
     const timestamp = dailyPot.startTime.toNumber();
     let identifier = 0;
 
-    for (var _identifier = identifier; _identifier < identifier + 15; _identifier++) {
+    for (var _identifier = identifier; _identifier < identifier + 29; _identifier++) {
 
         const [idAddress, bump1] = await PublicKey.findProgramAddress(
             [Buffer.from(DAILY_SEED), Buffer.from(timestamp.toString()), Buffer.from(_identifier.toString())],
@@ -214,6 +214,7 @@ export const initIdPool = async (
         signers: [],
     });
     await solConnection.confirmTransaction(tx, "confirmed");
+    console.log(idAddress.toBase58());
 
     console.log(`The ID Pool is Successfully Initialized`);
 }
@@ -470,8 +471,8 @@ export const revealWinner = async (
     console.log(daily_pot.claimPrize.toNumber());
 
     console.log(daily_pot.winner.toBase58());
-    let winner = await program.account.IdPool.fetch(daily_pot.winner);
-    console.log(winner.toBase58());
+    let winner = await program.account.idPool.fetch(daily_pot.winner);
+    console.log(winner.player.toBase58());
 
 
     console.log("Reveal Daily Winner Succeed");

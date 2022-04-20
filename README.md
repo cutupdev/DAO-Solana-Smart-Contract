@@ -30,10 +30,14 @@ For the first time use, the Smart Contract Owner should `initialize` the Smart C
 - `initProject`
 
 ### As a user
-All users can buy tickets by calling the functions `pub fn buy_tickets(ctx: Context<BuyTickets>, vault_bump: u8, amount: u64) -> ProgramResult ` with amount of tickets.
+All users can buy tickets by calling the functions 
+```pub fn buy_tickets(ctx: Context<BuyTickets>, vault_bump: u8, amount: u64) -> ProgramResult ``` 
+with amount of tickets.
 
-After the lottery ends, they can reveal the winner by calling function ` pub fn reveal_winner(ctx: Context<RevealWinner>) -> ProgramResult `.
+After the lottery ends, they can reveal the winner by calling function 
+``` pub fn reveal_winner(ctx: Context<RevealWinner>) -> ProgramResult ```.
 
-Then, the winner can claim reward from the reward pool by calling funciton ` pub fn claim(ctx: Context<Claim>, vault_bump: u8) -> ProgramResult `.
+Then, the winner can claim reward from the reward pool by calling funciton 
+``` pub fn claim(ctx: Context<Claim>, vault_bump: u8) -> ProgramResult ```.
 
 Above 3 functions are implemented for 3 pots- daily, weekly, and monthly pots.

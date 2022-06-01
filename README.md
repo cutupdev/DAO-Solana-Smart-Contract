@@ -1,4 +1,4 @@
-# Honey_pot
+# Honey_Pot_DAO
 This is one kind of Lottery system.
 Here's how it works:
 - Players pay an entry fee of 0.05 $SOL for a golden ticket.
